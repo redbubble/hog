@@ -73,9 +73,10 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().StringVarP(&target, "target", "t", "0.0.0.0", "Hostname or IP address of the target service")
+	rootCmd.Flags().StringVarP(&target, "target", "t", "", "Hostname or IP address of the target service")
 	rootCmd.Flags().IntVarP(&port, "port", "p", 80, "TCP port of the target service")
 	rootCmd.Flags().IntVarP(&limit, "limit", "l", 100, "Maximum number of simultaneous connections to attempt")
+	rootCmd.MarkFlagRequired("target")
 }
 
 // initConfig reads in config file and ENV variables if set.
