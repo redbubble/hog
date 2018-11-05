@@ -46,7 +46,7 @@ var rootCmd = &cobra.Command{
 			defer conns[i].Close()
 		}
 
-		fmt.Printf("Successfully made %d connections to %s:%d", limit, target, port)
+		fmt.Printf("Successfully made %d connections to %s:%d\n", limit, target, port)
 
 		return nil
 	},
