@@ -34,3 +34,15 @@ brew:
     system "#{bin}/hog --help"
   install: |
     bin.install "hog"
+dockers:
+  - binary: hog
+    goos: linux
+    goarch: amd64
+    image_templates:
+      - "redbubble/{{ .ProjectName }}:{{ .Tag }}"
+      - "redbubble/{{ .ProjectName }}:v{{ .Major }}.{{ .Minor }}"
+      - "redbubble/{{ .ProjectName }}:latest"
+    build_flag_templates:
+      - "--build-arg=VERSION={{ .Version }}"
+    skip_push: true
+    dockerfile: Dockerfile
