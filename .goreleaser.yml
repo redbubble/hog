@@ -16,7 +16,7 @@ nfpm:
   maintainer: Redbubble <domain@redbubble.com>
   formats:
     - deb
-    - rpm
+    # - rpm
   license: MIT
 brew:
   github:
