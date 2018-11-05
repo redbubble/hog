@@ -1,0 +1,36 @@
+dist: ./bin
+builds:
+  - binary: hog
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+archive:
+  format: tar.gz
+  files:
+    - LICENSE
+    - README.md
+nfpm:
+  description: A tool to test incoming TCP connection limits
+  maintainer: Redbubble <domain@redbubble.com>
+  formats:
+    - deb
+    - rpm
+  license: MIT
+brew:
+  github:
+    owner: redbubble
+    name: homebrew-hog
+  commit_author:
+    name: toothbrush
+    email: paul@denknerd.org
+
+  folder: Formula
+  homepage: https://github.com/redbubble/hog
+  description: A tool to test incoming TCP connection limits
+
+  test: |
+    system "#{bin}/hog --help"
+  install: |
+    bin.install "hog"
