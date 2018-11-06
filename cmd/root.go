@@ -18,6 +18,7 @@ var cfgFile string
 var target string
 var port int
 var limit int
+var timeoutMs int
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -38,7 +39,7 @@ var rootCmd = &cobra.Command{
 		conns := make([]net.Conn, limit)
 
 		for i := 0; i < limit; i++ {
-			conns[i], err = net.DialTimeout("tcp", fmt.Sprintf("%s:%d", target, port), 5*time.Second)
+			conns[i], err = net.DialTimeout("tcp", fmt.Sprintf("%s:%d", target, port), time.Duration(timeoutMs)*time.Millisecond)
 
 			if err != nil {
 				fmt.Printf("Error after %d successful connections:\n", i)
@@ -79,6 +80,7 @@ func init() {
 	rootCmd.Flags().StringVarP(&target, "target", "t", "", "Hostname or IP address of the target service")
 	rootCmd.Flags().IntVarP(&port, "port", "p", 80, "TCP port of the target service")
 	rootCmd.Flags().IntVarP(&limit, "limit", "l", 100, "Maximum number of simultaneous connections to attempt")
+	rootCmd.Flags().IntVar(&timeoutMs, "timeout-ms", 500, "Connection timeout in milliseconds")
 	rootCmd.MarkFlagRequired("target")
 }
 
