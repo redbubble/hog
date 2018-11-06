@@ -47,9 +47,6 @@ var rootCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			defer conns[i].Close()
-
-			conns[i].SetWriteDeadline(time.Now().Add(10 * time.Second))
-			conns[i].Write([]byte("GET "))
 		}
 
 		fmt.Printf("Successfully made %d connections to %s:%d\n", limit, target, port)
