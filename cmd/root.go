@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"time"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -37,7 +38,7 @@ var rootCmd = &cobra.Command{
 		conns := make([]net.Conn, limit)
 
 		for i := 0; i < limit; i++ {
-			conns[i], err = net.Dial("tcp", fmt.Sprintf("%s:%d", target, port))
+			conns[i], err = net.DialTimeout("tcp", fmt.Sprintf("%s:%d", target, port), 5*time.Second)
 
 			if err != nil {
 				fmt.Printf("Error after %d successful connections:\n", i)
@@ -45,6 +46,9 @@ var rootCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			defer conns[i].Close()
+
+			conns[i].SetWriteDeadline(time.Now().Add(10 * time.Second))
+			conns[i].Write([]byte("GET "))
 		}
 
 		fmt.Printf("Successfully made %d connections to %s:%d\n", limit, target, port)
