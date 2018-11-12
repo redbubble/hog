@@ -51,8 +51,8 @@ var rootCmd = &cobra.Command{
 				results[i] = false
 			} else {
 				results[i] = true
+				defer conns[i].Close()
 			}
-			defer conns[i].Close()
 		}
 
 		success, fail := 0, 0
