@@ -43,12 +43,14 @@ var rootCmd = &cobra.Command{
 
 		conns := make([]net.Conn, limit)
 		results := make([]bool, limit)
+		errors := make(map[string]int, 10)
 
 		for i := 0; i < limit; i++ {
 			conns[i], err = net.DialTimeout("tcp", fmt.Sprintf("%s:%d", target, port), time.Duration(timeoutMs)*time.Millisecond)
 
 			if err != nil {
 				results[i] = false
+				errors[err.Error()]++
 			} else {
 				results[i] = true
 				defer conns[i].Close()
@@ -65,7 +67,15 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
-		fmt.Printf("Made %d connections to %s:%d. %d successful, %d failed.\n", limit, target, port)
+		fmt.Printf("Made %d connections to %s:%d. %d successful, %d failed.\n", limit, target, port, success, fail)
+
+		if fail > 0 {
+			fmt.Println("Errors:")
+
+			for msg, count := range errors {
+				fmt.Printf("%s: %d\n", msg, count)
+			}
+		}
 		return nil
 	},
 }
