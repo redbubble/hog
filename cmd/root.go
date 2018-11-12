@@ -21,6 +21,21 @@ var port int
 var limit int
 var timeoutMs int
 
+type ConnStatus int
+
+const (
+	Failed    ConnStatus = 0
+	Connected ConnStatus = 1
+	// TimedOut  ConnStatus = 2
+)
+
+type ConnResult struct {
+	Connection net.Conn
+	Error      error
+	Status     ConnStatus
+	Time       time.Duration
+}
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "hog",
@@ -42,38 +57,42 @@ var rootCmd = &cobra.Command{
 		fmt.Printf("Testing port %d on %s with %d simultaneous connections.\n", port, target, limit)
 
 		conns := make([]net.Conn, limit)
-		results := make([]bool, limit)
+		results := make([]ConnResult, limit)
 		errors := make(map[string]int, 10)
 
 		for i := 0; i < limit; i++ {
+			start := time.Now()
 			conns[i], err = net.DialTimeout("tcp", fmt.Sprintf("%s:%d", target, port), time.Duration(timeoutMs)*time.Millisecond)
+			connTime := time.Since(start)
 
 			if err != nil {
-				results[i] = false
-				errors[err.Error()]++
+				results[i] = ConnResult{Error: err, Status: Failed, Time: connTime}
 			} else {
-				results[i] = true
+				results[i] = ConnResult{Connection: conns[i], Status: Connected, Time: connTime}
 				defer conns[i].Close()
 			}
 		}
 
 		success, fail := 0, 0
 
-		for i := 0; i < limit; i++ {
-			if results[i] {
+		for i := 0; i < len(results); i++ {
+			switch results[i].Status {
+			case Connected:
 				success++
-			} else {
+			case Failed:
 				fail++
+				errors[results[i].Error.Error()]++
 			}
 		}
 
 		fmt.Printf("Made %d connections to %s:%d. %d successful, %d failed.\n", limit, target, port, success, fail)
 
 		if fail > 0 {
+			fmt.Println("")
 			fmt.Println("Errors:")
 
 			for msg, count := range errors {
-				fmt.Printf("%s: %d\n", msg, count)
+				fmt.Printf("[%d] %s\n", count, msg)
 			}
 		}
 		return nil
