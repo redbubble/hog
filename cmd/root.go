@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -26,12 +27,16 @@ var rootCmd = &cobra.Command{
 	Short: "Takes all the connections. Doesn't give them back.",
 	Long:  `Hog is a testing tool for finding how many simultaneous TCP connections a service will accept.`,
 
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string)(error) {
 		var err error
 
 		if viper.GetBool("version") {
 			versionCmd()
 			os.Exit(0)
+		}
+
+		if target == "" {
+			return errors.New("--target is missing")
 		}
 
 		fmt.Printf("Testing port %d on %s with %d simultaneous connections.\n", port, target, limit)
@@ -50,6 +55,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		fmt.Printf("Successfully made %d connections to %s:%d\n", limit, target, port)
+		return nil
 	},
 }
 
@@ -78,7 +84,6 @@ func init() {
 	rootCmd.Flags().IntVarP(&port, "port", "p", 80, "TCP port of the target service")
 	rootCmd.Flags().IntVarP(&limit, "limit", "l", 100, "Maximum number of simultaneous connections to attempt")
 	rootCmd.Flags().IntVar(&timeoutMs, "timeout-ms", 500, "Connection timeout in milliseconds")
-	rootCmd.MarkFlagRequired("target")
 }
 
 // initConfig reads in config file and ENV variables if set.
