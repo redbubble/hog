@@ -27,7 +27,7 @@ var rootCmd = &cobra.Command{
 	Short: "Takes all the connections. Doesn't give them back.",
 	Long:  `Hog is a testing tool for finding how many simultaneous TCP connections a service will accept.`,
 
-	RunE: func(cmd *cobra.Command, args []string)(error) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
 
 		if viper.GetBool("version") {
