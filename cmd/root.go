@@ -42,19 +42,30 @@ var rootCmd = &cobra.Command{
 		fmt.Printf("Testing port %d on %s with %d simultaneous connections.\n", port, target, limit)
 
 		conns := make([]net.Conn, limit)
+		results := make([]bool, limit)
 
 		for i := 0; i < limit; i++ {
 			conns[i], err = net.DialTimeout("tcp", fmt.Sprintf("%s:%d", target, port), time.Duration(timeoutMs)*time.Millisecond)
 
 			if err != nil {
-				fmt.Printf("Error after %d successful connections:\n", i)
-				fmt.Println(err)
-				os.Exit(1)
+				results[i] = false
+			} else {
+				results[i] = true
 			}
 			defer conns[i].Close()
 		}
 
-		fmt.Printf("Successfully made %d connections to %s:%d\n", limit, target, port)
+		success, fail := 0, 0
+
+		for i := 0; i < limit; i++ {
+			if results[i] {
+				success++
+			} else {
+				fail++
+			}
+		}
+
+		fmt.Printf("Made %d connections to %s:%d. %d successful, %d failed.\n", limit, target, port)
 		return nil
 	},
 }
